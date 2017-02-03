@@ -3,6 +3,7 @@ package el
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -77,6 +78,22 @@ func (r *Rotator) changeLogFile(t time.Time) error {
 
 	// open new log
 	filePath := logFilePath(r.PathFormat, t)
+	fullPath, err := filepath.Abs(filePath)
+	if err != nil {
+		return err
+	}
+
+	dirPath := filepath.Dir(fullPath)
+	// make dir
+
+	if s, err := os.Stat(dirPath); err != nil {
+		if err := os.MkdirAll(dirPath, 0775); err != nil {
+			return err
+		}
+	} else if !s.IsDir() {
+		return fmt.Errorf("file is not directory")
+	}
+
 	lf, err := os.OpenFile(filePath,
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
