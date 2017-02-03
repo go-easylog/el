@@ -35,8 +35,10 @@ type logStatus struct {
 }
 
 var state = &logStatus{
+	Debug:       false,
 	LogLevel:    WARN,
 	RotateLevel: RNone,
+	Rotator:     NewStdRotator(),
 	chRotate:    make(chan *os.File),
 	chExit:      make(chan bool),
 }
@@ -49,16 +51,27 @@ func SetLogLevel(level LogLevel) {
 	state.LogLevel = level
 }
 
+func GetLogLevel() LogLevel {
+	return state.LogLevel
+}
+
 func SetDebug() {
 	syncMtx.Lock()
 	defer syncMtx.Unlock()
 	state.Debug = true
+}
+func GetDebug() bool {
+	return state.Debug
 }
 
 func SetRelease() {
 	syncMtx.Lock()
 	defer syncMtx.Unlock()
 	state.Debug = false
+}
+
+func IsDebug() bool {
+	return state.Debug
 }
 
 func File() *os.File {

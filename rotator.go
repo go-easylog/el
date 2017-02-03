@@ -53,6 +53,18 @@ func NewRotator(path string) (*Rotator, error) {
 	return result, nil
 }
 
+func NewStdRotator() *Rotator {
+	result := &Rotator{
+		PathFormat:  "",
+		rotateLevel: RNone,
+		file:        os.Stdout,
+		chRotate:    nil,
+		chExit:      nil,
+	}
+
+	return result
+}
+
 func (r *Rotator) File() *os.File {
 	return r.file
 }
@@ -121,8 +133,10 @@ Exit:
 }
 
 func (r *Rotator) Close() {
-	r.chExit <- true
-	<-r.chExit
+	if r.chExit != nil {
+		r.chExit <- true
+		<-r.chExit
+	}
 }
 
 func logFilePath(path string, t time.Time) string {
